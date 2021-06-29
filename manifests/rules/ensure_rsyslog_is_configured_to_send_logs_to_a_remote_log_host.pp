@@ -15,6 +15,11 @@
 # @example
 #   include secure_linux_cis::ensure_rsyslog_is_configured_to_send_logs_to_a_remote_log_host
 class secure_linux_cis::rules::ensure_rsyslog_is_configured_to_send_logs_to_a_remote_log_host {
+  if $secure_linux_cis::logging_host_protocol == 'udp' {
+    $protocol = '@'
+  } else {
+    $protocol = '@@'
+  }
 
   Class['secure_linux_cis::rules::ensure_rsyslog_is_configured_to_send_logs_to_a_remote_log_host']
   ~> Class['::secure_linux_cis::reboot']
@@ -22,8 +27,8 @@ class secure_linux_cis::rules::ensure_rsyslog_is_configured_to_send_logs_to_a_re
       file_line { 'rsyslog.conf logging_host':
         ensure => present,
         path   => '/etc/rsyslog.conf',
-        line   => "*.* @@${secure_linux_cis::logging_host}",
-        match  => '\*\.\* @@',
+        line   => "*.* ${protocol}${secure_linux_cis::logging_host}",
+        match  => "\*\.\* ${protocol}",
       }
     }
 }
